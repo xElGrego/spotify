@@ -1,5 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { AuthService } from "../../services/auth.service";
+import { CookieService } from "ngx-cookie-service";
 
 @Component({
   selector: "app-auth-page",
@@ -9,7 +11,13 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 export class AuthPageComponent implements OnInit {
   /* Se inicializa la variable */
   formLogin: FormGroup = new FormGroup({});
-  constructor() {}
+
+  errorSesion: boolean = false;
+
+  constructor(
+    private authService: AuthService,
+    private cokkie: CookieService
+  ) {}
 
   ngOnInit(): void {
     this.formLogin = new FormGroup({
@@ -23,7 +31,17 @@ export class AuthPageComponent implements OnInit {
   }
 
   sendLogin(): void {
-    const body = this.formLogin.value;
-    console.log(body);
+    const { email, password } = this.formLogin.value;
+
+    this.authService.sendCredentail(email, password).subscribe(
+      (e) => {
+        this.formLogin = e;
+        console.log("Sesion correcta", e);
+      },
+      (error) => {
+        this.errorSesion = true;
+        console.log(error);
+      }
+    );
   }
 }
